@@ -1,0 +1,17 @@
+{
+    "contents" : "library(lattice)\nlibrary(ggplot2)\nlibrary(corrplot)\nlibrary(caret)\nlibrary(randomForest)\n\nwm <- read.csv(\"C:\\\\DEP\\\\Machine Learning\\\\pml-training.csv\", header = TRUE, na.strings = c(\"NA\", \"\"))\nwm_test <- read.csv(\"C:\\\\DEP\\\\Machine Learning\\\\pml-testing.csv\", header = TRUE, na.strings = c(\"NA\", \"\"))\n\n\ncsums <- colSums(is.na(wm))\ncsums_log <- (csums == 0)\ntraining_fewer_cols <- wm[, (colSums(is.na(wm)) == 0)]\nwm_test <- wm_test[, (colSums(is.na(wm)) == 0)]\n\n\n\ndel_cols_log <- grepl(\"X|user_name|timestamp|new_window\", colnames(training_fewer_cols))\ntraining_fewer_cols <- training_fewer_cols[, !del_cols_log]\nwm_test_final <- wm_test[, !del_cols_log]\n\n\ninTrain = createDataPartition(y = training_fewer_cols$classe, p = 0.7, list = FALSE)\nsmall_train = training_fewer_cols[inTrain, ]\nsmall_valid = training_fewer_cols[-inTrain, ]\n\n\n#orMat <- cor(small_train[, -54])\ncorrplot(cor(small_train[, -54]), order = \"FPC\", method = \"color\", type = \"lower\", tl.cex = 0.8, tl.col = rgb(0, 0, 0))\n\npreProc <- preProcess(small_train[, -54], method = \"pca\", thresh = 0.99)\ntrainPC <- predict(preProc, small_train[, -54])\nvalid_testPC <- predict(preProc, small_valid[, -54])\n\nmodelFit <- train(small_train$classe ~ ., method = \"rf\", data = trainPC, trControl = trainControl(method = \"cv\", number = 4), importance = TRUE)\nvarImpPlot(modelFit$finalModel, sort = TRUE, type = 1, pch = 19, col = 1, cex = 1, main = \"Importance of the Individual Principal Components\")\n\npred_valid_rf <- predict(modelFit, valid_testPC)\nconfus <- confusionMatrix(small_valid$classe, pred_valid_rf)\nconfus$table\n\naccur <- postResample(small_valid$classe, pred_valid_rf)\nmodel_accuracy <- accur[[1]]\nmodel_accuracy\n\nout_of_sample_error <- 1 - model_accuracy\nout_of_sample_error\n\ntestPC <- predict(preProc, wm_test_final[, -54])\npred_final <- predict(modelFit, testPC)\npred_final",
+    "created" : 1403332776985.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "651812081",
+    "id" : "41531D44",
+    "lastKnownWriteTime" : 1403343328,
+    "path" : "C:/DEP/Machine Learning/Predictor/Predictor.R",
+    "project_path" : "Predictor.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

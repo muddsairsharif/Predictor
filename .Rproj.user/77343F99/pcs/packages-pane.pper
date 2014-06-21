@@ -1,0 +1,7 @@
+{
+    "installOptions" : {
+        "installDependencies" : true,
+        "installFromRepository" : true,
+        "libraryPath" : "C:/Users/Muddsair-DVP/Documents/R/win-library/3.1"
+    }
+}
